@@ -1,0 +1,208 @@
+{
+  "release_id": "release-ota-fixture-002",
+  "created_at": "2026-11-12T01:00:00Z",
+  "snapshot_at": "2026-11-12T01:00:00Z",
+  "maximum_staleness_hours": 72,
+  "cohort_dimensions": ["hardware_model", "region", "risk_level"],
+  "plan": {
+    "plan_id": "plan-ota-fixture-002",
+    "title": "合成终端智能体 2.4.0 波次升级",
+    "channel": "stable",
+    "identity": {
+      "identity_code": "agent-cn-ota-002",
+      "issuer": "fixture-terminal-lab",
+      "model_family": "fixture-agent-v2",
+      "issued_at": "2026-01-01T00:00:00Z",
+      "expires_at": "2028-01-01T00:00:00Z",
+      "certificate_digest": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "versioning": {
+      "current": "2.3.0",
+      "target": "2.4.0",
+      "minimum_bootloader": "1.5.0",
+      "artifact_digest": "$AUTO",
+      "manifest_digest": "$AUTO"
+    },
+    "approval": {
+      "approval_id": "approval-ota-002",
+      "reviewer": "fixture-review-board",
+      "approved_at": "2026-11-12T00:45:00Z",
+      "scope_digest": "$AUTO",
+      "decision": "approved",
+      "conditions": ["每波完成观察窗口后才允许继续"]
+    },
+    "capabilities": [
+      {
+        "capability_id": "cap-local-search",
+        "description": "仅在终端本地索引中检索用户允许的数据",
+        "risk_level": "medium",
+        "tool_modes": ["read"],
+        "controls": ["user-confirmation", "local-scope"],
+        "user_confirmation_required": true
+      },
+      {
+        "capability_id": "cap-device-action",
+        "description": "执行用户明确确认的终端设置变更",
+        "risk_level": "high",
+        "tool_modes": ["execute"],
+        "controls": ["user-confirmation", "approval-record"],
+        "user_confirmation_required": true
+      },
+      {
+        "capability_id": "cap-delegated-navigation",
+        "description": "为已签名同意的第三方应用提供受限导航委托",
+        "risk_level": "high",
+        "tool_modes": ["read", "delegate"],
+        "controls": ["third-party-signature", "bounded-tools"],
+        "user_confirmation_required": true
+      }
+    ],
+    "third_party_declarations": [
+      {
+        "application_id": "app-fixture-map",
+        "consent": true,
+        "declared_at": "2026-11-12T00:30:00Z",
+        "expires_at": "2027-11-12T00:30:00Z",
+        "signature_algorithm": "ed25519",
+        "signature_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+        "allowed_capabilities": ["cap-local-search", "cap-delegated-navigation"]
+      }
+    ],
+    "dependencies": [
+      {
+        "predecessor": "cap-local-search",
+        "successor": "cap-delegated-navigation",
+        "type": "requires",
+        "reason": "导航委托需要本地检索结果作为受控输入"
+      },
+      {
+        "predecessor": "cap-device-action",
+        "successor": "cap-delegated-navigation",
+        "type": "after",
+        "reason": "高风险设备动作控制必须先完成兼容验证"
+      }
+    ],
+    "rollout": {
+      "waves": [
+        {
+          "name": "canary",
+          "target_percentage": 25.0,
+          "minimum_observation_minutes": 1,
+          "maximum_parallel_devices": 2,
+          "requires_checkpoint": true
+        },
+        {
+          "name": "regional",
+          "target_percentage": 50.0,
+          "minimum_observation_minutes": 1,
+          "maximum_parallel_devices": 3,
+          "requires_checkpoint": true
+        },
+        {
+          "name": "fleet",
+          "target_percentage": 100.0,
+          "minimum_observation_minutes": 1,
+          "maximum_parallel_devices": 4,
+          "requires_checkpoint": true
+        }
+      ]
+    },
+    "health_thresholds": {
+      "minimum_sample_size": 6,
+      "minimum_success_rate": 0.8,
+      "maximum_failure_rate": 0.2,
+      "maximum_rollback_rate": 0.2,
+      "maximum_error_rate_delta": 0.03,
+      "maximum_p95_latency_delta_ms": 40.0,
+      "minimum_availability": 0.97,
+      "maximum_privilege_denial_delta": 0.03,
+      "minimum_metric_coverage": 0.8
+    },
+    "failure_budget": {
+      "maximum_failed_devices": 2,
+      "maximum_failed_fraction": 0.2,
+      "maximum_consecutive_failures": 2,
+      "critical_cohort_failures": 0
+    },
+    "rollback_window_minutes": 180
+  },
+  "artifact": {
+    "artifact_id": "artifact-ota-fixture-002",
+    "version": "2.4.0",
+    "artifact_digest": "$AUTO",
+    "manifest_digest": "$AUTO",
+    "files": [
+      {
+        "path": "agent/runtime.bin",
+        "digest": "3333333333333333333333333333333333333333333333333333333333333333",
+        "size": 2097152,
+        "kind": "agent"
+      },
+      {
+        "path": "agent/policy.json",
+        "digest": "4444444444444444444444444444444444444444444444444444444444444444",
+        "size": 262144,
+        "kind": "policy"
+      },
+      {
+        "path": "agent/manifest.json",
+        "digest": "5555555555555555555555555555555555555555555555555555555555555555",
+        "size": 65536,
+        "kind": "manifest"
+      }
+    ],
+    "signing": {
+      "signer": "fixture-release-signer",
+      "algorithm": "ed25519",
+      "signature_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+      "signed_at": "2026-11-12T00:40:00Z"
+    },
+    "provenance": "由本地合成构建器生成，仅用于离线验收"
+  },
+  "devices": [
+    {"device_id":"device-001","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.8.0","hardware_model":"model-h1","region":"east","channel":"stable","risk_level":"low","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-a"}},
+    {"device_id":"device-002","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.8.0","hardware_model":"model-h1","region":"east","channel":"stable","risk_level":"medium","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-a"}},
+    {"device_id":"device-003","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.8.0","hardware_model":"model-h1","region":"west","channel":"stable","risk_level":"low","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-b"}},
+    {"device_id":"device-004","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.8.0","hardware_model":"model-h1","region":"west","channel":"stable","risk_level":"medium","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-b"}},
+    {"device_id":"device-005","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.9.0","hardware_model":"model-h2","region":"east","channel":"stable","risk_level":"low","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-a"}},
+    {"device_id":"device-006","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.9.0","hardware_model":"model-h2","region":"east","channel":"stable","risk_level":"medium","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-a"}},
+    {"device_id":"device-007","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.9.0","hardware_model":"model-h2","region":"west","channel":"stable","risk_level":"low","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-b"}},
+    {"device_id":"device-008","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.9.0","hardware_model":"model-h2","region":"west","channel":"stable","risk_level":"high","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-b"}},
+    {"device_id":"device-009","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"2.0.0","hardware_model":"model-h3","region":"north","channel":"stable","risk_level":"low","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-c"}},
+    {"device_id":"device-010","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"2.0.0","hardware_model":"model-h3","region":"north","channel":"stable","risk_level":"medium","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-c"}},
+    {"device_id":"device-011","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"2.0.0","hardware_model":"model-h3","region":"south","channel":"stable","risk_level":"low","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-c"}},
+    {"device_id":"device-012","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"2.0.0","hardware_model":"model-h3","region":"south","channel":"stable","risk_level":"high","state":"active","battery_ready":true,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-c"}},
+    {"device_id":"device-held","identity_code":"agent-cn-ota-002","current_version":"2.3.0","bootloader_version":"1.0.0","hardware_model":"model-h0","region":"east","channel":"stable","risk_level":"critical","state":"active","battery_ready":false,"storage_ready":true,"network_ready":true,"last_seen_at":"2026-11-12T00:50:00Z","attributes":{"tenant":"fixture-held"}}
+  ],
+  "baseline_metrics": [
+    {"metric_id":"baseline-h1-east-low","wave_id":null,"cohort_key":"hardware_model=model-h1|region=east|risk_level=low","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":60,"latency_p95_ms":100,"latency_p99_ms":140},
+    {"metric_id":"baseline-h1-east-medium","wave_id":null,"cohort_key":"hardware_model=model-h1|region=east|risk_level=medium","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":61,"latency_p95_ms":101,"latency_p99_ms":141},
+    {"metric_id":"baseline-h1-west-low","wave_id":null,"cohort_key":"hardware_model=model-h1|region=west|risk_level=low","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":62,"latency_p95_ms":102,"latency_p99_ms":142},
+    {"metric_id":"baseline-h1-west-medium","wave_id":null,"cohort_key":"hardware_model=model-h1|region=west|risk_level=medium","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":63,"latency_p95_ms":103,"latency_p99_ms":143},
+    {"metric_id":"baseline-h2-east-low","wave_id":null,"cohort_key":"hardware_model=model-h2|region=east|risk_level=low","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":64,"latency_p95_ms":104,"latency_p99_ms":144},
+    {"metric_id":"baseline-h2-east-medium","wave_id":null,"cohort_key":"hardware_model=model-h2|region=east|risk_level=medium","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":65,"latency_p95_ms":105,"latency_p99_ms":145},
+    {"metric_id":"baseline-h2-west-low","wave_id":null,"cohort_key":"hardware_model=model-h2|region=west|risk_level=low","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":66,"latency_p95_ms":106,"latency_p99_ms":146},
+    {"metric_id":"baseline-h2-west-high","wave_id":null,"cohort_key":"hardware_model=model-h2|region=west|risk_level=high","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":67,"latency_p95_ms":107,"latency_p99_ms":147},
+    {"metric_id":"baseline-h3-north-low","wave_id":null,"cohort_key":"hardware_model=model-h3|region=north|risk_level=low","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":68,"latency_p95_ms":108,"latency_p99_ms":148},
+    {"metric_id":"baseline-h3-north-medium","wave_id":null,"cohort_key":"hardware_model=model-h3|region=north|risk_level=medium","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":69,"latency_p95_ms":109,"latency_p99_ms":149},
+    {"metric_id":"baseline-h3-south-low","wave_id":null,"cohort_key":"hardware_model=model-h3|region=south|risk_level=low","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":70,"latency_p95_ms":110,"latency_p99_ms":150},
+    {"metric_id":"baseline-h3-south-high","wave_id":null,"cohort_key":"hardware_model=model-h3|region=south|risk_level=high","observed_at":"2026-11-11T12:00:00Z","sample_count":20,"request_count":2000,"error_count":10,"privilege_denial_count":4,"availability_success_count":20,"latency_p50_ms":71,"latency_p95_ms":111,"latency_p99_ms":151}
+  ],
+  "default_wave_metrics": [
+    {"cohort_key":"hardware_model=model-h1|region=east|risk_level=low","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":62,"latency_p95_ms":106,"latency_p99_ms":146},
+    {"cohort_key":"hardware_model=model-h1|region=east|risk_level=medium","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":63,"latency_p95_ms":107,"latency_p99_ms":147},
+    {"cohort_key":"hardware_model=model-h1|region=west|risk_level=low","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":64,"latency_p95_ms":108,"latency_p99_ms":148},
+    {"cohort_key":"hardware_model=model-h1|region=west|risk_level=medium","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":65,"latency_p95_ms":109,"latency_p99_ms":149},
+    {"cohort_key":"hardware_model=model-h2|region=east|risk_level=low","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":66,"latency_p95_ms":110,"latency_p99_ms":150},
+    {"cohort_key":"hardware_model=model-h2|region=east|risk_level=medium","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":67,"latency_p95_ms":111,"latency_p99_ms":151},
+    {"cohort_key":"hardware_model=model-h2|region=west|risk_level=low","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":68,"latency_p95_ms":112,"latency_p99_ms":152},
+    {"cohort_key":"hardware_model=model-h2|region=west|risk_level=high","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":69,"latency_p95_ms":113,"latency_p99_ms":153},
+    {"cohort_key":"hardware_model=model-h3|region=north|risk_level=low","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":70,"latency_p95_ms":114,"latency_p99_ms":154},
+    {"cohort_key":"hardware_model=model-h3|region=north|risk_level=medium","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":71,"latency_p95_ms":115,"latency_p99_ms":155},
+    {"cohort_key":"hardware_model=model-h3|region=south|risk_level=low","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":72,"latency_p95_ms":116,"latency_p99_ms":156},
+    {"cohort_key":"hardware_model=model-h3|region=south|risk_level=high","sample_count":8,"request_count":800,"error_count":5,"privilege_denial_count":1,"availability_success_count":8,"latency_p50_ms":73,"latency_p95_ms":117,"latency_p99_ms":157}
+  ],
+  "failure_devices": [],
+  "report_id": "report-ota-fixture-002",
+  "report_generated_at": "2026-11-12T04:00:00Z"
+}
